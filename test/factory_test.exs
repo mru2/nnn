@@ -17,10 +17,10 @@ defmodule FactoryTest do
   end
 
   test "#create" do
-    {:ok, {input_layer, output_layer}} = Factory.create(self, [4, 3, 2])
-    assert length(input_layer) == 4
-    assert length(output_layer) == 2
-    input_neuron = hd(input_layer)
+    {:ok, network} = Factory.create(self, [4, 3, 2])
+    assert length(network.input_layer) == 4
+    assert length(network.output_layer) == 2
+    input_neuron = hd(network.input_layer)
     second_layer = Agent.get(input_neuron, &(&1.outs))
 
     assert length(second_layer) == 3

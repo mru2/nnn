@@ -1,6 +1,7 @@
 # Logic for generating a new neural network
 defmodule Nnn.Factory do
 
+  alias Nnn.Network
   alias Nnn.Neuron
 
   # Create a multi-layered network
@@ -21,8 +22,11 @@ defmodule Nnn.Factory do
     link_input_layer(input_layer, controller)
     link_output_layer(output_layer, controller)
 
+    # Get all the neurons
+    neurons = List.flatten(layers)
+
     # Return the input and output layers
-    {:ok, {input_layer, output_layer}}
+    {:ok, %Network{input_layer: input_layer, output_layer: output_layer, neurons: neurons}}
   end
 
   # Create a new unlinked neuron

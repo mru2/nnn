@@ -1,8 +1,7 @@
 # Logic for generating a new neural network
-defmodule Nnn.Factory do
+defmodule Nnn.Network.Factory do
 
-  alias Nnn.Network
-  alias Nnn.Neuron
+  alias Nnn.Network.Neuron
 
   # Create a multi-layered network
   # Configured with an array of layer size
@@ -31,7 +30,7 @@ defmodule Nnn.Factory do
 
   # Create a new unlinked neuron
   def create_neuron do
-    {:ok, neuron} = Agent.start_link(Neuron, :init, [])
+    {:ok, neuron} = Agent.start_link(Neuron, :new, [])
     neuron
   end
 
@@ -42,11 +41,11 @@ defmodule Nnn.Factory do
   end
 
   # Neuron connection helpers
-  defp add_neuron_input(neuron, input, weight) do
+  def add_neuron_input(neuron, input, weight) do
     Agent.cast neuron, &( &1 |> Neuron.add_input(input, weight) )
   end
 
-  defp add_neuron_output(neuron, output) do
+  def add_neuron_output(neuron, output) do
     Agent.cast neuron, &( &1 |> Neuron.add_output(output) )
   end
 

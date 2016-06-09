@@ -8,15 +8,16 @@ defmodule NeuronTest do
     neuron = Neuron.new
     assert neuron.ins == []
     assert neuron.outs == []
-    assert neuron.cache == []
   end
 
   test "#add_input" do
     neuron = Neuron.new
-    input_neuron = "A PID"
+    input_neuron = self
     weight = 4.2
-    neuron = neuron |> Neuron.with_input(input_neuron, weight)
-    assert neuron.ins == [{"A PID", 4.2, nil}]
+    neuron = neuron |> Neuron.with_input({input_neuron, weight})
+    input = hd(neuron.ins)
+    assert input.pid == input_neuron
+    assert input.weight == 4.2
   end
 
   test "#add_output" do
@@ -27,24 +28,19 @@ defmodule NeuronTest do
   end
 
   test "#evaluate" do
-    neuron = Factory.create_neuron
+    neuron = Neuron.new
+    |> Neuron.with_input({"IN1", 12})
+    |> Neuron.with_input({"IN2", 5})
 
-    # Add mock inputs
-    Factory.add_neuron_input(neuron, "IN1", 12)
-    Factory.add_neuron_input(neuron, "IN2", 5)
+    assert false == Enum.all?(neuron.ins, &(&1.activated))
+    assert { neuron, :unactivated } == Neuron.check_activation(neuron)
 
-    # Make it send output to us
-    Factory.add_neuron_output(neuron, self)
+    neuron = neuron |> Neuron.evaluating("IN1", 0.3)
+    assert { neuron, :unactivated } == Neuron.check_activation(neuron)
 
-    # Trigger evaluate mode
-    Agent.cast neuron, &( &1 |> Neuron.evaluate )
-
-    # Send it signals
-    send neuron, {:signal, "IN1", 0.3}
-    send neuron, {:signal, "IN2", -0.5}
-
-    # We should reveive the output
-    assert_receive {:signal, neuron, 0.5005202111902349}
+    neuron = neuron |> Neuron.evaluating("IN2", -0.5)
+    { new_neuron, {:activated, 0.5005202111902349} } = Neuron.check_activation(neuron)
+    assert Enum.all?(new_neuron.ins, &(!&1.activated))
   end
 
 end

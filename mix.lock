@@ -1,1 +1,1 @@
-%{"exactor": {:hex, :exactor, "2.2.0"}}
+%{"exactor": {:hex, :exactor, "2.2.0", "2a7418b82d974fe8276edd62c1facf4a9dc06339cdf11b5dcd10359e107fe5c3", [:mix], []}}

@@ -1,6 +1,7 @@
 # Logic for generating a new neural network
 defmodule Nnn.Network.Factory do
 
+  alias Nnn.Network
   alias Nnn.Network.Neuron
 
   # Create a multi-layered network

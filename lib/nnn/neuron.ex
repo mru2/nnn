@@ -3,13 +3,14 @@ defmodule Nnn.Neuron do
 
   use GenServer
 
+  # Input struct : pid, weight, last value, and activation status
   defmodule Input do
     defstruct [:pid, :weight, :value, :activated]
 
     # Initialisation
     def new({pid, weight}), do: new(pid, weight)
     def new(pid), do: new(pid, get_random_weight)
-    def new(pid, weight) when is_pid(pid) and is_float(weight) do
+    def new(pid, weight) do
       %__MODULE__{pid: pid, weight: weight, value: 0, activated: false}
     end
 
@@ -26,10 +27,6 @@ defmodule Nnn.Neuron do
     defp get_random_weight, do: 2 * :random.uniform - 1
   end
 
-  # ==============
-  # Data structure
-  # ==============
-
   # Ins : list of inputs (struct)
   # Outs: list of PID
   defstruct ins: [], outs: []
@@ -41,11 +38,16 @@ defmodule Nnn.Neuron do
 
   # Accept pid or {pid, weight} tuple
   def with_input(neuron, input) do
-    %__MODULE__{ neuron | ins: neuron.ins ++ Input.new(input) }
+    %__MODULE__{ neuron | ins: neuron.ins ++ [Input.new(input)] }
   end
 
   def with_output(neuron, pid) do
     %__MODULE__{ neuron | outs: neuron.outs ++ [pid] }
+  end
+
+  defp with_cleared_ins(neuron) do
+    cleared_ins = neuron.ins |> Enum.map( &Input.clear/1 )
+    %__MODULE__{ neuron | ins: cleared_ins }
   end
 
   def evaluating(neuron, from, value) do
@@ -62,12 +64,9 @@ defmodule Nnn.Neuron do
 
   def check_activation(neuron) do
     res = case Enum.all?(neuron.ins, &(&1.activated)) do
-      false -> :unactivated
-      true -> {:activated, output(neuron)}
+      false -> { neuron, :unactivated }
+      true  -> { with_cleared_ins(neuron), { :activated, output(neuron) } }
     end
-
-    cleared_ins = neuron.ins |> Enum.map( &Input.clear/1 )
-    { %__MODULE__{ neuron | ins: cleared_ins }, res }
   end
 
   defp sigmoid(x) do
@@ -76,7 +75,7 @@ defmodule Nnn.Neuron do
 
   defp output(neuron) do
     neuron.ins
-    |> Enum.map(fn {_pid, weight, value} -> weight * value end)
+    |> Enum.map( &(&1.weight * &1.value) )
     |> Enum.sum
     |> sigmoid
   end

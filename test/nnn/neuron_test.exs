@@ -28,17 +28,17 @@ defmodule Nnn.NeuronTest do
 
   test "#evaluate" do
     neuron = Neuron.new
-    |> Neuron.with_input({"IN1", 12})
-    |> Neuron.with_input({"IN2", 5})
+    |> Neuron.with_input({"IN1", 8})
+    |> Neuron.with_input({"IN2", -6})
 
     assert false == Enum.all?(neuron.ins, &(&1.activated))
     assert { neuron, :unactivated } == Neuron.check_activation(neuron)
 
-    neuron = neuron |> Neuron.evaluating("IN1", 0.3)
+    neuron = neuron |> Neuron.evaluating("IN1", 0.9)
     assert { neuron, :unactivated } == Neuron.check_activation(neuron)
 
-    neuron = neuron |> Neuron.evaluating("IN2", -0.5)
-    { new_neuron, {:activated, 0.5005202111902349} } = Neuron.check_activation(neuron)
+    neuron = neuron |> Neuron.evaluating("IN2", 0.5)
+    { new_neuron, {:activated, 0.9852259683067269} } = Neuron.check_activation(neuron)
     assert Enum.all?(new_neuron.ins, &(!&1.activated))
   end
 

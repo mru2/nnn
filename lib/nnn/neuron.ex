@@ -29,11 +29,11 @@ defmodule Nnn.Neuron do
 
   # Ins : list of inputs (struct)
   # Outs: list of PID
-  defstruct ins: [], outs: []
+  defstruct ins: [], outs: [], learning_rate: 0.1
 
-  def new(inputs \\ []) do
+  def new(inputs \\ [], learning_rate \\ 0.1) do
     ins = inputs |> Enum.map(&Input.new/1)
-    %__MODULE__{ins: ins, outs: []}
+    %__MODULE__{ins: ins, outs: [], learning_rate: learning_rate}
   end
 
   # Accept pid or {pid, weight} tuple
@@ -63,14 +63,15 @@ defmodule Nnn.Neuron do
   end
 
   def check_activation(neuron) do
-    res = case Enum.all?(neuron.ins, &(&1.activated)) do
+    case Enum.all?(neuron.ins, &(&1.activated)) do
       false -> { neuron, :unactivated }
       true  -> { with_cleared_ins(neuron), { :activated, output(neuron) } }
     end
   end
 
+  # 0 to 1 sigmoid
   defp sigmoid(x) do
-    2 / ( 1 + :math.exp(-x) ) - 1
+    1 / ( 1 + :math.exp(-x) )
   end
 
   defp output(neuron) do

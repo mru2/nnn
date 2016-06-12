@@ -8,7 +8,7 @@ defmodule NetworkTest do
   test "#evaluate" do
     Network.start_link([4, 3, 2], @seed)
     res = Network.evaluate([1, 0.6, -0.2, -1])
-    assert res == [-0.020718603640745514, 0.017354608558158846]
+    assert res == [0.5169567921397581, 0.31868118696188064]
   end
 
   test "#train" do

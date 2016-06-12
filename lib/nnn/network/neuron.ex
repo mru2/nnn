@@ -7,8 +7,8 @@ defmodule Nnn.Network.Neuron do
   # Client API
   # ==========
   # Inputs can be a list of pids or of tuples {pid, weight}
-  def start_link(inputs \\ []) do
-    GenServer.start_link(__MODULE__, inputs, [])
+  def start_link(inputs \\ [], learning_rate \\ 0.1) do
+    GenServer.start_link(__MODULE__, {inputs, learning_rate}, [])
   end
 
   # Add inputs and outputs
@@ -33,8 +33,8 @@ defmodule Nnn.Network.Neuron do
   # Server implementation
   # =====================
 
-  def init(inputs) do
-    {:ok, Neuron.new(inputs)}
+  def init({inputs, learning_rate}) do
+    {:ok, Neuron.new(inputs, learning_rate)}
   end
 
   def handle_cast({:add_input, pid}, neuron) do

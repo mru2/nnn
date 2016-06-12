@@ -6,11 +6,11 @@ defmodule Nnn.Network.Factory do
 
   # Create a multi-layered network
   # Configured with an array of layer size, and the random seed
-  def create(controller, layer_sizes, seed) do
+  def create(controller, layer_sizes, seed, learning_rate) do
     :random.seed(seed)
 
     # Create neurons
-    layers = layer_sizes |> Enum.map(&create_layer/1)
+    layers = layer_sizes |> Enum.map( &( &1 |> create_layer(learning_rate) ) )
 
     # Link the layers between themselves
     layers
@@ -29,8 +29,8 @@ defmodule Nnn.Network.Factory do
   end
 
   # Create a new unlinked neuron
-  defp create_neuron do
-    {:ok, neuron} = Neuron.start_link
+  defp create_neuron(learning_rate) do
+    {:ok, neuron} = Neuron.start_link([], learning_rate)
     neuron
   end
 
@@ -41,8 +41,8 @@ defmodule Nnn.Network.Factory do
   end
 
   # Create a layer of neurons with a given length
-  defp create_layer(size) do
-    (1..size) |> Enum.map( fn _i -> create_neuron() end )
+  defp create_layer(size, learning_rate) do
+    (1..size) |> Enum.map( fn _i -> create_neuron(learning_rate) end )
   end
 
   # Link all neurons between 2 layers

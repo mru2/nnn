@@ -13,8 +13,8 @@ defmodule Nnn.Network do
   defstruct input_layer: [], output_layer: []
 
   # Client API
-  def start_link(layer_sizes, seed \\ :os.timestamp) do
-    GenServer.start_link(__MODULE__, {layer_sizes, seed}, name: :network)
+  def start_link(layer_sizes, seed \\ :os.timestamp, learning_rate \\ 0.1) do
+    GenServer.start_link(__MODULE__, {layer_sizes, seed, learning_rate}, name: :network)
   end
 
   def evaluate(input_vector) do
@@ -22,8 +22,8 @@ defmodule Nnn.Network do
   end
 
   # Server API
-  def init({layer_sizes, seed}) do
-    {:ok, Factory.create(self, layer_sizes, seed)}
+  def init({layer_sizes, seed, learning_rate}) do
+    {:ok, Factory.create(self, layer_sizes, seed, learning_rate)}
   end
 
   def handle_call({:evaluate, input_vector}, _from, network) do

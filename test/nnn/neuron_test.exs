@@ -1,8 +1,7 @@
-defmodule NeuronTest do
+defmodule Nnn.NeuronTest do
   use ExUnit.Case
 
   alias Nnn.Neuron
-  alias Nnn.Factory
 
   test "#new" do
     neuron = Neuron.new

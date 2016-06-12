@@ -5,8 +5,10 @@ defmodule Nnn.Network.Factory do
   alias Nnn.Network.Neuron
 
   # Create a multi-layered network
-  # Configured with an array of layer size
-  def create(controller, layer_sizes) do
+  # Configured with an array of layer size, and the random seed
+  def create(controller, layer_sizes, seed) do
+    :random.seed(seed)
+
     # Create neurons
     layers = layer_sizes |> Enum.map(&create_layer/1)
 
@@ -19,35 +21,23 @@ defmodule Nnn.Network.Factory do
     input_layer = layers |> List.first
     output_layer = layers |> List.last
 
-    link_input_layer(input_layer, controller)
-    link_output_layer(output_layer, controller)
-
-    # Get all the neurons
-    neurons = List.flatten(layers)
+    input_layer |> Enum.map( &( Neuron.add_input(&1, controller, 2 * :random.uniform - 1) ) )
+    output_layer |> Enum.map( &( Neuron.add_output(&1, controller) ) )
 
     # Return the input and output layers
-    {:ok, %Network{input_layer: input_layer, output_layer: output_layer, neurons: neurons}}
+    %Network{input_layer: input_layer, output_layer: output_layer}
   end
 
   # Create a new unlinked neuron
-  def create_neuron do
-    {:ok, neuron} = Agent.start_link(Neuron, :new, [])
+  defp create_neuron do
+    {:ok, neuron} = Neuron.start_link
     neuron
   end
 
   # Connect 2 neurons with a given weight
-  def connect(input_neuron, output_neuron, weight) do
-    add_neuron_input(output_neuron, input_neuron, weight)
-    add_neuron_output(input_neuron, output_neuron)
-  end
-
-  # Neuron connection helpers
-  def add_neuron_input(neuron, input, weight) do
-    Agent.cast neuron, &( &1 |> Neuron.add_input(input, weight) )
-  end
-
-  def add_neuron_output(neuron, output) do
-    Agent.cast neuron, &( &1 |> Neuron.add_output(output) )
+  defp connect(input_neuron, output_neuron) do
+    Neuron.add_input(output_neuron, input_neuron, 2 * :random.uniform - 1)
+    Neuron.add_output(input_neuron, output_neuron)
   end
 
   # Create a layer of neurons with a given length
@@ -58,17 +48,8 @@ defmodule Nnn.Network.Factory do
   # Link all neurons between 2 layers
   defp link_layers(layer_in, layer_out) do
     for input_neuron <- layer_in, output_neuron <- layer_out do
-      connect(input_neuron, output_neuron, 4.2)
+      connect(input_neuron, output_neuron)
     end
-  end
-
-  # Link ourselvef to the input layer
-  defp link_input_layer(layer, controller) do
-    layer |> Enum.map( &( add_neuron_input(&1, controller, 4.2) ) )
-  end
-
-  defp link_output_layer(layer, controller) do
-    layer |> Enum.map( &( add_neuron_output(&1, controller) ) )
   end
 
 end

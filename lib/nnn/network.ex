@@ -5,17 +5,28 @@
 # - synchronicity node
 defmodule Nnn.Network do
 
-  alias Nnn.Neuron
+  use GenServer
 
-  # Neuron pids organized by layer
-  defstruct input_layer: [], output_layer: [], neurons: []
+  alias Nnn.Network.Factory
 
-  def evaluate(network, input_vector) do
-    # Trigger the neurons to evaluate
-    Enum.each(network.neurons, fn neuron ->
-      Agent.cast neuron, &( &1 |> Neuron.evaluate )
-    end)
+  # Struct: neuron pids organized by layer
+  defstruct input_layer: [], output_layer: []
 
+  # Client API
+  def start_link(layer_sizes, seed \\ :os.timestamp) do
+    GenServer.start_link(__MODULE__, {layer_sizes, seed}, name: :network)
+  end
+
+  def evaluate(input_vector) do
+    GenServer.call(:network, {:evaluate, input_vector})
+  end
+
+  # Server API
+  def init({layer_sizes, seed}) do
+    {:ok, Factory.create(self, layer_sizes, seed)}
+  end
+
+  def handle_call({:evaluate, input_vector}, _from, network) do
     # Send the input vector to the first layer
     Enum.zip(network.input_layer, input_vector)
     |> Enum.map( fn {pid, value} ->
@@ -23,11 +34,13 @@ defmodule Nnn.Network do
     end)
 
     # Wait for the response
-    Enum.map(network.output_layer, fn pid ->
+    out = Enum.map(network.output_layer, fn pid ->
       receive do
        {:signal, ^pid, value} -> value
       end
     end)
+
+    {:reply, out, network}
   end
 
 end

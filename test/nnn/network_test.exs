@@ -21,18 +21,25 @@ defmodule NetworkTest do
     end)
 
     res = Network.evaluate([1, 0.6, 0.2, 0])
-    assert res == [0.5265943797664001, 0.7251621927847689]
+    assert res == [0.5197224035870279, 0.7346492282509555]
+
+    (1..10_000) |> Enum.each(fn _ ->
+      Network.train([1, 0.6, 0.2, 0], [0, 1])
+    end)
+
+    res = Network.evaluate([1, 0.6, 0.2, 0])
+    assert res == [0.019164860346195776, 0.9804835887807309]
   end
 
-  test "XOR" do
+  test "OR" do
     mappings = [
       { [0, 0], [0] },
       { [1, 0], [1] },
       { [0, 1], [1] },
-      { [1, 1], [0] }
+      { [1, 1], [1] }
     ]
 
-    Network.start_link([2, 4, 1], @seed, 0.5)
+    Network.start_link([2, 3, 1], @seed, 0.5)
 
     :random.seed(@seed)
     (1..10_000) |> Enum.each(fn _ ->
@@ -40,10 +47,10 @@ defmodule NetworkTest do
       Network.train(input, output)
     end)
 
-    assert [0.5137746324245511] == Network.evaluate([0, 0])
-    assert [0.5209357032493271] == Network.evaluate([1, 0])
-    assert [0.5326526868539111] == Network.evaluate([0, 1])
-    assert [0.5373004010975094] == Network.evaluate([1, 1])
+    assert [0.05411916194129148] == Network.evaluate([0, 0])
+    assert [0.9575867473072632] == Network.evaluate([1, 0])
+    assert [0.9957557084001706] == Network.evaluate([0, 1])
+    assert [0.9979718524623855] == Network.evaluate([1, 1])
 
   end
 

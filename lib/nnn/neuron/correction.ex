@@ -37,7 +37,7 @@ defmodule Nnn.Neuron.Correction do
   end
 
   def backpropagated_errors(neuron) do
-    error = external_error(neuron)
+    error = error(neuron)
     Enum.map(neuron.ins, fn input -> input.weight * error end)
   end
 

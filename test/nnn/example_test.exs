@@ -29,6 +29,11 @@ defmodule Nnn.ExampleTest do
     # 0.186815602
     assert 0.18681560182396473 == Correction.internal_error(neuron)
 
+    assert [
+      0.05539942465364214, # 0.055399425
+      0.06232435273534741
+    ] == Correction.backpropagated_errors(neuron)
+
     neuron = neuron
     |> Correction.with_fixed_weights
 

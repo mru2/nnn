@@ -71,8 +71,8 @@ defmodule Nnn.NeuronTest do
     assert true == Correction.corrected?(neuron)
     assert 0.12496699799738095 == neuron |> Correction.error
     assert [
-      0.075,
-      0.125
+      0.018745049699607143,
+      0.031241749499345238
     ] == Correction.backpropagated_errors(neuron)
 
     neuron = Correction.with_fixed_weights(neuron)

@@ -30,7 +30,8 @@ defmodule Nnn.Network.Factory do
 
   # Create a new unlinked neuron
   defp create_neuron(learning_rate) do
-    {:ok, neuron} = Neuron.start_link([], learning_rate)
+    bias = 2 * :random.uniform - 1
+    {:ok, neuron} = Neuron.start_link([], learning_rate, bias)
     neuron
   end
 
